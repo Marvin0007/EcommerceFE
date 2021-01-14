@@ -4,14 +4,14 @@ import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
 
-const Register = () => {
+const ForgotPass = () => {
     const [mail, setMail] = useState('');
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        console.log("Redirecting To Complete Registration:" + process.env.REGISTER_REDIRECT_URL);
+        console.log("Redirecting To After Pass Reset:", process.env.REACT_APP_REGISTER_REDIRECT_URL);
         const config = {
-            url: process.env.REGISTER_REDIRECT_URL,
+            url: process.env.REACT_APP_REGISTER_REDIRECT_URL,
             handleCodeInApp: true,
         }
 
@@ -40,4 +40,4 @@ const Register = () => {
     );
 }
 
-export default Register;
+export default ForgotPass;

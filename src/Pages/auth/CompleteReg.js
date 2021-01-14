@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from 'react';
+import React, {useEffect, useReducer, useState} from 'react';
 import { auth } from '../../Firebase/firebase';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
@@ -18,8 +18,29 @@ const CompleteReg = ({history}) => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+        if(!pass || !mail){
+            toast.error("Email and Password is Required");
+            return;
+        }
+        if (pass.length<6){
+            toast.error("Password must be at least 6 characters long!");
+            return;
+        }
         try{
             const result = await auth.signInWithEmailLink(mail, window.location.href);
+            if(result.user.emailVerified) {
+                // remove user email from local storage
+                window.localStorage.removeItem('emailForRegistration');
+                // get user id token
+                let user = auth.currentUser;
+                await user.updatePassword(pass);
+                const idTokenResult = await user.getIdToken();
+                console.log('user:' + user + '\nID Token:' +idTokenResult);
+
+                // populate redux store
+                // redirect
+                history.push("/");
+            }
             console.log("Result:" + result);
             // history.push('/');
 
@@ -39,7 +60,8 @@ const CompleteReg = ({history}) => {
                 <button className="btn btn-raised border">Complete Registration</button>
             </form>
         )
-    } 
+    };
+
     return(
         <div className="container p-5">
             <div className="row">
