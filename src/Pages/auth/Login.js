@@ -1,6 +1,6 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { auth, googleAuthProvider } from "../../Firebase/firebase";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { useHistory, Link } from "react-router-dom";
 import { toast, ToastContainer } from "react-toastify";
 import { Button } from "antd";
@@ -12,8 +12,13 @@ const Login = () => {
   const [pass, setPass] = useState("123456");
   const [load, setLoad] = useState("false");
 
-  let dispatch = useDispatch();
-  let history = useHistory();
+  const dispatch = useDispatch();
+  const history = useHistory();
+  const { user } = useSelector((state) => ({ ...state }));
+
+  useEffect(() => {
+    if (user && user.token) history.push("/");
+  }, [user]);
 
   const passLogin = async (e) => {
     e.preventDefault();
@@ -41,22 +46,24 @@ const Login = () => {
   };
 
   const googleLogin = async () => {
-    auth.signInWithPopup(googleAuthProvider).then(async (result) => {
-      const { user } = result;
-      const idTokenResult = await user.getIdTokenResult();
-      dispatch({
-        type: "LOGGED_IN_USER",
-        payload: {
-          email: user.email,
-          token: idTokenResult.token,
-        },
-      });
-      history.push("/");
-    })
-    .catch((err) => {
+    auth
+      .signInWithPopup(googleAuthProvider)
+      .then(async (result) => {
+        const { user } = result;
+        const idTokenResult = await user.getIdTokenResult();
+        dispatch({
+          type: "LOGGED_IN_USER",
+          payload: {
+            email: user.email,
+            token: idTokenResult.token,
+          },
+        });
+        history.push("/");
+      })
+      .catch((err) => {
         console.log("LogIn Error:", err);
         toast.error(err.message);
-    });
+      });
   };
 
   const loginForm = () => {
@@ -104,12 +111,14 @@ const Login = () => {
     );
   };
   return (
-    <div className="container p-2">
+    <div className="container p-5">
       <div className="row">
         <div className="col-md-6 offset-md-3">
-           { load? 
-           (<h4 className="d-flex justify-content-center">Login</h4>):
-           (<h4 className="text-danger">Loading</h4>)}
+          {load ? (
+            <h4 className="d-flex justify-content-center">Login</h4>
+          ) : (
+            <h4 className="text-danger">Loading</h4>
+          )}
           <ToastContainer />
           {loginForm()}
           <Button
@@ -129,7 +138,18 @@ const Login = () => {
           >
             Login With Google
           </Button>
-          <Link to="/resetpass"><h5 className="alert-danger" style={{display: "flex", float: "right", backgroundColor: "white"}}>Forgot Password?</h5></Link>
+          <Link to="/resetpass">
+            <h5
+              className="alert-danger"
+              style={{
+                display: "flex",
+                float: "right",
+                backgroundColor: "white",
+              }}
+            >
+              Forgot Password?
+            </h5>
+          </Link>
         </div>
       </div>
     </div>

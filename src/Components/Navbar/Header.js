@@ -10,6 +10,7 @@ import {
   LogoutOutlined,
 } from "@ant-design/icons";
 import { Link, useHistory } from "react-router-dom";
+import "./Header.css";
 
 const { SubMenu, Item } = Menu;
 
@@ -36,12 +37,20 @@ const Header = () => {
   };
 
   return (
-    <Menu onClick={handleClick} selectedKeys={[current]} mode="horizontal">
-      <Item key="home" icon={<HomeOutlined />}>
-        <Link to="/">Home</Link>
+    <Menu
+      onClick={handleClick}
+      selectedKeys={[current]}
+      mode="horizontal"
+    >
+      <Item key="home" icon={<HomeOutlined />} className="calibrate">
+        <Link className="align" to="/">Home</Link>
       </Item>
       {user && (
-        <SubMenu title={user.email && user.email.split('@')[0]} icon={<UserOutlined />} className="float-right">
+        <SubMenu
+          className="calibrate"
+          title={user.email && user.email.split("@")[0]}
+          icon={<UserOutlined />}
+        >
           <Item key="this">
             <Link to="/">Option 1</Link>
           </Item>
@@ -49,22 +58,18 @@ const Header = () => {
             <Link to="/">Option 1</Link>
           </Item>
           <Item icon={<LogoutOutlined />} onClick={logout}>
-            <Link to="/">Logout</Link>
+            <Link to="/" className="align">Logout</Link>
           </Item>
         </SubMenu>
       )}
       {!user && (
-        <Item
-          key="register"
-          icon={<UserAddOutlined />}
-          className="float-*-right"
-        >
-          <Link to="/register">Register</Link>
+        <Item key="register" className="calibrate" icon={<UserAddOutlined />}>
+          <Link to="/register" className="align" >Register</Link>
         </Item>
       )}
       {!user && (
-        <Item key="login" icon={<LoginOutlined />} className="float-right">
-          <Link to="/login">Login</Link>
+        <Item key="login" icon={<LoginOutlined />} className="calibrate">
+          <Link to="/login" className="align">Login</Link>
         </Item>
       )}
     </Menu>

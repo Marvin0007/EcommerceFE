@@ -1,0 +1,10 @@
+.calibrate{
+    display:flex;
+    align-items: center;
+    vertical-align: middle;
+    justify-content: center
+}
+.align{
+    vertical-align: middle
+}
+    

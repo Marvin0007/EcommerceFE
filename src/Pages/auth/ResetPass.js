@@ -1,43 +1,92 @@
-import React, {useState} from 'react';
-import { auth } from '../../Firebase/firebase';
-import { toast, ToastContainer } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
+import React, { useState, useEffect } from "react";
+import { auth } from "../../Firebase/firebase";
+import { useSelector } from "react-redux";
+import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
+const ResetPass = ({ history }) => {
+  const [mail, setMail] = useState("");
+  const [load, setLoad] = useState(false);
 
-const ForgotPass = () => {
-    const [mail, setMail] = useState('');
+  const { user } = useSelector((state) => ({ ...state }));
 
-    const handleSubmit = async (e) => {
-        e.preventDefault();
-        console.log("Redirecting To After Pass Reset:", process.env.REACT_APP_REGISTER_REDIRECT_URL);
-        const config = {
-            url: process.env.REACT_APP_REGISTER_REDIRECT_URL,
-            handleCodeInApp: true,
-        }
+  useEffect(() => {
+    if (user && user.token) history.push("/");
+  }, [user]);
 
-        await auth.sendSignInLinkToEmail(mail, config);
-        toast.success(`Email is sent to ${mail}, Click the Link to Complete Registration.`);
-        window.localStorage.setItem('emailForRegistration', mail)
-        setMail("");
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setLoad(true);
+    // Print Out
+    console.log("Redirecting To After Pass Reset:", process.env.RESET_REDIRECT);
+
+    const config = {
+      url: process.env.RESET_REDIRECT,
+      handleCodeInApp: true,
     };
 
-    const registerForm = () => {
-        return(
-            <form className="form" onSubmit={handleSubmit}>
-                <input type="email" className="form-control" value={mail} onChange={e=> setMail(e.target.value)} autoFocus />
-                <button className="btn btn-raised border">Register</button>
-            </form>
-        )
-    }
-    return(
-        <div className="container p-5">
-            <div className="row">
-                <h4>Registration</h4>
-                <ToastContainer />
-                {registerForm()}
-            </div>
-        </div>
-    );
-}
+    await auth
+      .sendPasswordResetEmail(mail, config)
+      .then(() => {
+        // window.localStorage.setItem("ResetMail:", mail);
+        toast.success("Reset Link have been sent To your Mail:", mail);
+        setMail("");
+      })
+      .catch((err) => {
+        setLoad(false);
+        console.log("Reset Pass Error:", err);
+        toast.error(err.message);
+      });
+  };
 
-export default ForgotPass;
+  const resetForm = () => {
+    return (
+      <form className="form" onSubmit={handleSubmit}>
+        <input
+          type="email"
+          className="form-control"
+          value={mail}
+          placeholder="Type Your Email..."
+          onChange={(e) => setMail(e.target.value)}
+          autoFocus
+        />
+        <button
+          className="btn btn-raised border mt-2"
+          disabled={!mail ? true : false}
+        >
+          Send Link
+        </button>
+      </form>
+    );
+  };
+  return (
+    <div className="container col-md-6 offset-md-3 p-5">
+      {load ? (
+        <h3
+          className="text-danger"
+          style={{
+            display: "flex",
+            justifyContent: "center",
+            alignContent: "center",
+          }}
+        >
+          Loading
+        </h3>
+      ) : (
+        <h3
+          style={{
+            display: "flex",
+            justifyContent: "center",
+            alignContent: "center",
+          }}
+        >
+          Reset Password
+        </h3>
+      )}
+      <ToastContainer />
+      {resetForm()}
+    </div>
+  );
+};
+
+export default ResetPass;
